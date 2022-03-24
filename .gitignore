@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/JobStatisticDataSQLToExcel
+/TransferToExcel/bin/Debug/net5.0
+/TransferToExcel/obj
+/JobStatisticDataSQLToExcel/obj
+/JobStatisticDataSQLToExcel/bin/Debug/net5.0

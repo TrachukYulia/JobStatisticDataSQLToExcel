@@ -1,29 +1,18 @@
-﻿using System;
-using System.Text;
-using System.Data.Common;
+﻿using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
-
-
 namespace TransferToExcel
 {
     public class DBConnection
     {
-        public static SqlConnection GetDBConnection()
+        public DBConnection()
         {
-            
-            //Data Source=JULIYA\MYMSSQL;Initial Catalog=TrainTicketsDB;Integrated Security=True
-            string datasource = @"JULIYA\MYMSSQL";
-            string database = "TutorialDB";
-
-            return GetDBConnection(datasource, database);
         }
-        public static SqlConnection GetDBConnection(string datasource, string database)
+        public SqlConnection GetDBConnection()
         {
-
-            string connString = @"Data Source=" + datasource + ";Initial Catalog="
-                        + database + ";Integrated Security=True;";
-            SqlConnection conn = new SqlConnection(connString);
-            return conn;
+            IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", true, true);
+            string connectionString = builder.Build().GetConnectionString("DBConnection");
+            SqlConnection connectToDB = new SqlConnection(connectionString);
+            return connectToDB;
         }
     }
 }

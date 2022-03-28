@@ -1,18 +1,12 @@
-﻿using Excel = Microsoft.Office.Interop.Excel;
-using System.Data.SqlClient;
-using System.Text;
+﻿using System.Data.SqlClient;
 using System.Data.Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
-using System.Text.Json;
 
 namespace TransferToExcel
 {
    public class JobStatisticSQLData
     {
-        public Dictionary<string,string> QueryEmployee(SqlConnection connection)
+        public Dictionary<string,string> GetJobStatisticsDataFromSQL(SqlConnection connection)
         {
             string sql = "SELECT id, JobStatistics FROM testData";
             SqlCommand cmd = new SqlCommand();

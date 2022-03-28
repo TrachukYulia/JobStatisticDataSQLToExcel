@@ -1,12 +1,7 @@
 ﻿using System;
 using TransferToExcel;
 using System.Data.SqlClient;
-using System.Data.Common;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using System.Diagnostics;
 
 namespace JobStatisticDataSQLToExcel
 {
@@ -16,12 +11,13 @@ namespace JobStatisticDataSQLToExcel
         {
             var excelData = new ExcelData();
             var jobStatisticSQLData = new JobStatisticSQLData();
-            SqlConnection connection = DBConnection.GetDBConnection();
+            var dataBaseConnection = new DBConnection();
+            SqlConnection connection = dataBaseConnection.GetDBConnection();
             connection.Open();
             try
             {
-                var jobStatisticData = jobStatisticSQLData.QueryEmployee(connection);
-                excelData.TransferToExcel(jobStatisticData);
+                var jobStatisticData = jobStatisticSQLData.GetJobStatisticsDataFromSQL(connection);
+                excelData.TransferDataToExcel(jobStatisticData);
 
             }
             catch (Exception e)

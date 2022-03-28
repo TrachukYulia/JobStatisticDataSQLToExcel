@@ -1,87 +1,79 @@
-﻿using Excel = Microsoft.Office.Interop.Excel;
-using System.Data.SqlClient;
-using System.Text;
-using System.Data.Common;
+﻿using Microsoft.Office.Interop.Excel;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using System;
 using System.Text.Json;
+using System;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace TransferToExcel
 {
+
     public class ExcelData
     {
-        private Excel.Application m_objExcel = null;
-        private Excel.Workbooks m_objBooks = null;
-        private Excel._Workbook m_objBook = null;
-        private Excel.Sheets m_objSheets = null;
-        private Excel._Worksheet m_objSheet = null;
-        private Excel.Range m_objRange = null;
-        private Excel.Font m_objFont = null;
-
-        private object m_objOpt = System.Reflection.Missing.Value;
-
-        // Paths used by the sample code for accessing and storing data.
-        private object m_strSampleFolder = "D:\\ExcelData\\";
-
-        public void TransferToExcel(Dictionary<string, string> jobStatisticData)
+        private Application excelApplication;
+        private Workbooks excelWorkbook;
+        private _Workbook excelBook;
+        private Sheets excelWorksheets;
+        private _Worksheet excelSheet;
+        private Microsoft.Office.Interop.Excel.Range workSpace;
+        private Font textFont;
+        private object excelDataObject = System.Reflection.Missing.Value;
+        private IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile($"appsettings.json", optional: false);
+        public void TransferDataToExcel(Dictionary<string, string> jobStatisticData)
         {
-            // Start a new workbook in Excel.
-            m_objExcel = new Excel.Application();
-            m_objBooks = m_objExcel.Workbooks;
-            m_objBook = m_objBooks.Add(m_objOpt);
-            m_objSheets = m_objBook.Worksheets;
-            m_objSheet = (Excel._Worksheet)(m_objSheets.get_Item(1));
+            var excelFileSettings = builder.Build().GetSection("ExcelFileSettings").Get<ExcelFileSettings>();
+            var pathToExcelSampleFolder = excelFileSettings.PathToTheSampleFolder;
+            var nameOfFileToSave = excelFileSettings.NameOfExcelBook;
+            CreateExcelWorkbook();
+            TransferJobStatisticDataToExcel(jobStatisticData);
+            Console.WriteLine(pathToExcelSampleFolder);
+            SaveExcelData(excelDataObject, pathToExcelSampleFolder, nameOfFileToSave);
+        }
+        public void CreateExcelWorkbook()
+        {
+            excelApplication = new Application();
+            excelWorkbook = excelApplication.Workbooks;
+            excelBook = excelWorkbook.Add(excelDataObject);
+            excelWorksheets = excelBook.Worksheets;
+            excelSheet = (_Worksheet)(excelWorksheets.get_Item(1));
+        }
+        public void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
+        {
 
-            object[] objHeaders = { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
+            object[] headersCells = { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
                 "FileDownloadDuration", "JobProcessingDuration", "ReportingByWorkerDuration", "JobRetrievalConfirmationDuration" };
-            m_objRange = m_objSheet.get_Range("A1", "G1");
-            m_objRange.set_Value(m_objOpt, objHeaders);
-            m_objFont = m_objRange.Font;
-            m_objFont.Bold = true;
-            int i = 2;
+            workSpace = excelSheet.get_Range("A1", "G1");
+            workSpace.set_Value(excelDataObject, headersCells);
+            textFont = workSpace.Font;
+            textFont.Bold = true;
+            int row = 2;
             foreach (var data in jobStatisticData)
             {
-                if (data.Value == "NULL")
+                if (data.Value != "NULL")
                 {
-                    for (int j = 1; j < 8; j++)
-                    {
-                        m_objSheet.Cells[i, j] = "NULL";
-                    }
-
+                    var jobStatistics = JsonSerializer.Deserialize<JobStatisticsModel>(data.Value);
+                    excelSheet.Cells[row, 1] = data.Key;
+                    excelSheet.Cells[row, 2] = jobStatistics.JobWaitingInQueueDuration;
+                    excelSheet.Cells[row, 3] = jobStatistics.JobRetrievalDuration;
+                    excelSheet.Cells[row, 4] = jobStatistics.FileDownloadDuration;
+                    excelSheet.Cells[row, 5] = jobStatistics.JobProcessingDuration;
+                    excelSheet.Cells[row, 6] = jobStatistics.ReportingByWorkerDuration;
+                    excelSheet.Cells[row, 7] = jobStatistics.JobRetrievalConfirmationDuration;
                 }
-                else
-                {
-                    var json = JsonSerializer.Deserialize<JobStatisticsModel>(data.Value);
-                    m_objSheet.Cells[i, 1] = data.Key;
-                    m_objSheet.Cells[i, 2] = json.JobWaitingInQueueDuration;
-                    m_objSheet.Cells[i, 3] = json.JobRetrievalDuration;
-                    m_objSheet.Cells[i, 4] = json.FileDownloadDuration;
-                    m_objSheet.Cells[i, 5] = json.JobProcessingDuration;
-                    m_objSheet.Cells[i, 6] = json.ReportingByWorkerDuration;
-                    m_objSheet.Cells[i, 7] = json.JobRetrievalConfirmationDuration;
-                }
-                i++;
+                row++;
             }
-                // Save the workbook and quit Excel.
-                m_objBook.SaveAs(m_strSampleFolder + "Book2.xlsx", m_objOpt, m_objOpt,
-                m_objOpt, m_objOpt, m_objOpt, Excel.XlSaveAsAccessMode.xlNoChange,
-                m_objOpt, m_objOpt, m_objOpt, m_objOpt, m_objOpt);
-                m_objBook.Close(false, m_objOpt, m_objOpt);
-                m_objExcel.Quit();
-            }
+        }
+        public void SaveExcelData(object excelDataObject, object pathToExcelSampleFolder, string nameOfFileToSave)
+        {
+            excelBook.SaveAs(pathToExcelSampleFolder + nameOfFileToSave, excelDataObject, excelDataObject,
+             excelDataObject, excelDataObject, excelDataObject, XlSaveAsAccessMode.xlNoChange,
+             excelDataObject, excelDataObject, excelDataObject, excelDataObject, excelDataObject);
+            excelBook.Close(false, excelDataObject, excelDataObject);
+            excelApplication.Quit();
         }
     }
 
-    public class JobStatisticsModel
-    {
-        public string JobWaitingInQueueDuration { get; set; }
-        public string JobRetrievalDuration { get; set; }
-        public string FileDownloadDuration { get; set; }
-        public string JobProcessingDuration { get; set; }
-        public string ReportingByWorkerDuration { get; set; }
-        public string JobRetrievalConfirmationDuration { get; set; }
-    }
+}
 

@@ -4,15 +4,21 @@ using System.Collections.Generic;
 
 namespace TransferToExcel
 {
-   public class JobStatisticSQLData
+   public class JobStatisticSQLDataReader
     {
-        public Dictionary<string,string> GetJobStatisticsDataFromSQL(SqlConnection connection)
+        public Dictionary<string, string> JobStatisticData { get; private set; }
+        public JobStatisticSQLDataReader(SqlConnection connection)
+        {
+            ReadJobStatisticsDataFromSQL(connection);
+        }
+        private void ReadJobStatisticsDataFromSQL(SqlConnection connection)
         {
             string sql = "SELECT id, JobStatistics FROM testData";
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = connection;
             cmd.CommandText = sql;
-            var jobStatisticData = new Dictionary<string, string>();
+            connection.Open();
+            JobStatisticData = new Dictionary<string, string>();
             using (DbDataReader reader = cmd.ExecuteReader())
             {
 
@@ -24,12 +30,11 @@ namespace TransferToExcel
                         string id = reader.GetString(0);
                         int jobStatisticsIndex = reader.GetOrdinal("JobStatistics");
                         string jobStatistics = reader.GetString(jobStatisticsIndex);
-                        jobStatisticData.Add(id, jobStatistics);
+                        JobStatisticData.Add(id, jobStatistics);
                     }
                 }
 
             }
-            return jobStatisticData;
         }
     }
 }

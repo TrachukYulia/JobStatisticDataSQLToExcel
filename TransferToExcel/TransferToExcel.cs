@@ -7,8 +7,6 @@ using System.IO;
 
 namespace TransferToExcel
 {
-
-
     public class ExcelData
     {
         private Application excelApplication;

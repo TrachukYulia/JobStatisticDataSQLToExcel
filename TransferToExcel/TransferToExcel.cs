@@ -10,12 +10,8 @@ namespace TransferToExcel
     public class ExcelData
     {
         private Application excelApplication;
-        private Workbooks excelWorkbook;
-        private _Workbook excelBook;
-        private Sheets excelWorksheets;
         private _Worksheet excelSheet;
-        private Microsoft.Office.Interop.Excel.Range workSpace;
-        private Font textFont;
+        _Workbook excelBook;
         private object excelDataObject = System.Reflection.Missing.Value;
         private IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -32,6 +28,8 @@ namespace TransferToExcel
         }
         public void CreateExcelWorkbook()
         {
+            Workbooks excelWorkbook;
+            Sheets excelWorksheets;
             excelApplication = new Application();
             excelWorkbook = excelApplication.Workbooks;
             excelBook = excelWorkbook.Add(excelDataObject);
@@ -40,7 +38,8 @@ namespace TransferToExcel
         }
         public void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
         {
-
+            Microsoft.Office.Interop.Excel.Range workSpace;
+            Font textFont;
             object[] headersCells =  { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
                 "FileDownloadDuration", "JobProcessingDuration", "ReportingByWorkerDuration", "JobRetrievalConfirmationDuration" };
             workSpace = excelSheet.get_Range("A1", "G1");

@@ -13,8 +13,8 @@ namespace TransferToExcel
         }
         private void ReadJobStatisticsDataFromSQL(SqlConnection connection)
         {
-            string sql = "SELECT id, JobStatistics FROM testData";
-            SqlCommand cmd = new SqlCommand();
+            var sql = "SELECT id, JobStatistics FROM testData";
+            var cmd = new SqlCommand();
             cmd.Connection = connection;
             cmd.CommandText = sql;
             connection.Open();
@@ -27,9 +27,9 @@ namespace TransferToExcel
                     while (reader.Read())
                     {
 
-                        string id = reader.GetString(0);
-                        int jobStatisticsIndex = reader.GetOrdinal("JobStatistics");
-                        string jobStatistics = reader.GetString(jobStatisticsIndex);
+                        var id = reader.GetString(0);
+                        var jobStatisticsIndex = reader.GetOrdinal("JobStatistics");
+                        var jobStatistics = reader.GetString(jobStatisticsIndex);
                         JobStatisticData.Add(id, jobStatistics);
                     }
                 }

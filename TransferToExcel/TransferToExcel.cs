@@ -41,13 +41,13 @@ namespace TransferToExcel
         public void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
         {
 
-            object[] headersCells = { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
+            object[] headersCells =  { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
                 "FileDownloadDuration", "JobProcessingDuration", "ReportingByWorkerDuration", "JobRetrievalConfirmationDuration" };
             workSpace = excelSheet.get_Range("A1", "G1");
             workSpace.set_Value(excelDataObject, headersCells);
             textFont = workSpace.Font;
             textFont.Bold = true;
-            int row = 2;
+            var row = 2;
             foreach (var data in jobStatisticData)
             {
                 if (data.Value != "NULL")
@@ -67,8 +67,8 @@ namespace TransferToExcel
         public void SaveExcelData(object excelDataObject, object pathToExcelSampleFolder, string nameOfFileToSave)
         {
             excelBook.SaveAs(pathToExcelSampleFolder + nameOfFileToSave, excelDataObject, excelDataObject,
-             excelDataObject, excelDataObject, excelDataObject, XlSaveAsAccessMode.xlNoChange,
-             excelDataObject, excelDataObject, excelDataObject, excelDataObject, excelDataObject);
+            excelDataObject, excelDataObject, excelDataObject, XlSaveAsAccessMode.xlNoChange,
+            excelDataObject, excelDataObject, excelDataObject, excelDataObject, excelDataObject);
             excelBook.Close(false, excelDataObject, excelDataObject);
             excelApplication.Quit();
         }

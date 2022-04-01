@@ -10,7 +10,7 @@ namespace TransferToExcel
         public SqlConnection GetDBConnection()
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", true, true);
-            string connectionString = builder.Build().GetConnectionString("DBConnection");
+            var connectionString = builder.Build().GetConnectionString("DBConnection");
             SqlConnection connectToDB = new SqlConnection(connectionString);
             return connectToDB;
         }

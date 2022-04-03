@@ -9,15 +9,13 @@ namespace JobStatisticDataSQLToExcel
     {
         static void Main(string[] args)
         {
-            var excelData = new ExcelData();
             var dataBaseConnection = new DBConnection();
             SqlConnection connection = dataBaseConnection.GetDBConnection();
             var jobStatisticSQLData = new JobStatisticSQLDataReader(connection);
             try
             {
                 var jobStatisticData = jobStatisticSQLData.JobStatisticData;
-                excelData.TransferDataToExcel(jobStatisticData);
-
+                TransferExcelData.TransferDataToExcel(jobStatisticData);
             }
             catch (Exception e)
             {

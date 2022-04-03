@@ -26,7 +26,7 @@ namespace TransferToExcel
             Console.WriteLine(pathToExcelSampleFolder);
             SaveExcelData(excelDataObject, pathToExcelSampleFolder, nameOfFileToSave);
         }
-        public void CreateExcelWorkbook()
+        private void CreateExcelWorkbook()
         {
             Workbooks excelWorkbook;
             Sheets excelWorksheets;
@@ -36,7 +36,7 @@ namespace TransferToExcel
             excelWorksheets = excelBook.Worksheets;
             excelSheet = (_Worksheet)(excelWorksheets.get_Item(1));
         }
-        public void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
+        private void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
         {
             Microsoft.Office.Interop.Excel.Range workSpace;
             Font textFont;
@@ -63,7 +63,7 @@ namespace TransferToExcel
                 row++;
             }
         }
-        public void SaveExcelData(object excelDataObject, object pathToExcelSampleFolder, string nameOfFileToSave)
+        private void SaveExcelData(object excelDataObject, object pathToExcelSampleFolder, string nameOfFileToSave)
         {
             excelBook.SaveAs(pathToExcelSampleFolder + nameOfFileToSave, excelDataObject, excelDataObject,
             excelDataObject, excelDataObject, excelDataObject, XlSaveAsAccessMode.xlNoChange,

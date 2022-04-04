@@ -4,13 +4,14 @@ namespace TransferToExcel
 {
     public class DBConnection
     {
-        public DBConnection()
+        private IConfigurationBuilder confifBuilder;
+        public DBConnection(IConfigurationBuilder builder)
         {
+            confifBuilder = builder;
         }
         public SqlConnection GetDBConnection()
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", true, true);
-            var connectionString = builder.Build().GetConnectionString("DBConnection");
+            var connectionString = confifBuilder.Build().GetConnectionString("DBConnection");
             SqlConnection connectToDB = new SqlConnection(connectionString);
             return connectToDB;
         }

@@ -9,13 +9,11 @@ namespace TransferToExcel
 {
     public class TransferExcelData
     {
-        private static  IConfigurationBuilder builder = new ConfigurationBuilder()
-                  .SetBasePath(Directory.GetCurrentDirectory())
-                  .AddJsonFile($"appsettings.json", optional: false);
+       
         public static ExcelData excelData = new ExcelData();
-        public static void TransferDataToExcel(Dictionary<string, string> jobStatisticData)
+        public static void TransferDataToExcel(Dictionary<string, string> jobStatisticData, IConfigurationBuilder confifBuilder)
         {
-            var excelFileSettings = builder.Build().GetSection("ExcelFileSettings").Get<ExcelFileSettings>();
+            var excelFileSettings = confifBuilder.Build().GetSection("ExcelFileSettings").Get<ExcelFileSettings>();
             var pathToExcelSampleFolder = excelFileSettings.PathToTheSampleFolder;
             var nameOfFileToSave = excelFileSettings.NameOfExcelBook;
             TransferJobStatisticDataToExcel(jobStatisticData);

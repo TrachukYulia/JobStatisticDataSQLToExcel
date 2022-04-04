@@ -1,7 +1,8 @@
 ﻿using System;
 using TransferToExcel;
 using System.Data.SqlClient;
-using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace JobStatisticDataSQLToExcel
 {
@@ -9,13 +10,16 @@ namespace JobStatisticDataSQLToExcel
     {
         static void Main(string[] args)
         {
-            var dataBaseConnection = new DBConnection();
+         IConfigurationBuilder builder = new ConfigurationBuilder()
+                  .SetBasePath(Directory.GetCurrentDirectory())
+                  .AddJsonFile($"appsettings.json", optional: false);
+            var dataBaseConnection = new DBConnection(builder);
             SqlConnection connection = dataBaseConnection.GetDBConnection();
             var jobStatisticSQLData = new JobStatisticSQLDataReader(connection);
             try
             {
                 var jobStatisticData = jobStatisticSQLData.JobStatisticData;
-                TransferExcelData.TransferDataToExcel(jobStatisticData);
+                TransferExcelData.TransferDataToExcel(jobStatisticData, builder);
             }
             catch (Exception e)
             {

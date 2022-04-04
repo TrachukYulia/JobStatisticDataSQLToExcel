@@ -1,5 +1,4 @@
-﻿
-namespace TransferToExcel
+﻿namespace TransferToExcel.Models
 {
     public class JobStatisticsModel
     {

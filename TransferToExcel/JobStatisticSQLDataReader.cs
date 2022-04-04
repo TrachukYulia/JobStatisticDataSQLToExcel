@@ -1,40 +1,46 @@
 ﻿using System.Data.SqlClient;
 using System.Data.Common;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TransferToExcel
 {
-   public class JobStatisticSQLDataReader
+    public class JobStatisticSQLDataReader
     {
-        public Dictionary<string, string> JobStatisticData { get; private set; }
+        private readonly SqlConnection connection;
+
         public JobStatisticSQLDataReader(SqlConnection connection)
         {
-            ReadJobStatisticsDataFromSQL(connection);
+            this.connection = connection;
         }
-        private void ReadJobStatisticsDataFromSQL(SqlConnection connection)
+
+        public async Task<Dictionary<string, string>> ReadJobStatisticsDataFromSQL()
         {
-            var sql = "SELECT id, JobStatistics FROM testData";
-            var cmd = new SqlCommand();
-            cmd.Connection = connection;
-            cmd.CommandText = sql;
-            connection.Open();
-            JobStatisticData = new Dictionary<string, string>();
-            using (DbDataReader reader = cmd.ExecuteReader())
+            const string sql = "SELECT id, JobStatistics FROM testData";
+            var jobStatisticData = new Dictionary<string, string>();
+
+            var cmd = new SqlCommand
             {
+                Connection = connection,
+                CommandText = sql
+            };
 
-                if (reader.HasRows)
+            connection.Open();
+            await using DbDataReader reader = await cmd.ExecuteReaderAsync();
+
+            if (reader.HasRows)
+            {
+                while (await reader.ReadAsync())
                 {
-                    while (reader.Read())
-                    {
-
-                        var id = reader.GetString(0);
-                        var jobStatisticsIndex = reader.GetOrdinal("JobStatistics");
-                        var jobStatistics = reader.GetString(jobStatisticsIndex);
-                        JobStatisticData.Add(id, jobStatistics);
-                    }
+                    var id = reader.GetString(0);
+                    var jobStatisticsIndex = reader.GetOrdinal("JobStatistics");
+                    var jobStatistics = reader.GetString(jobStatisticsIndex);
+                    if (jobStatistics != "NULL")
+                        jobStatisticData.Add(id, jobStatistics);
                 }
-
             }
+
+            return jobStatisticData;
         }
     }
 }

@@ -1,51 +1,50 @@
-﻿using Microsoft.Office.Interop.Excel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json;
-using System;
-using Microsoft.Extensions.Configuration;
-using System.IO;
+using TransferToExcel.Models;
 
 namespace TransferToExcel
 {
     public class TransferExcelData
     {
-       
-        public static ExcelData excelData = new ExcelData();
-        public static void TransferDataToExcel(Dictionary<string, string> jobStatisticData, IConfigurationBuilder confifBuilder)
+        public static void TransferDataToExcel(Dictionary<string, string> jobStatisticData, string excelFilePath)
         {
-            var excelFileSettings = confifBuilder.Build().GetSection("ExcelFileSettings").Get<ExcelFileSettings>();
-            var pathToExcelSampleFolder = excelFileSettings.PathToTheSampleFolder;
-            var nameOfFileToSave = excelFileSettings.NameOfExcelBook;
-            TransferJobStatisticDataToExcel(jobStatisticData);
-            excelData.SaveExcelData(excelData.ExcelDataObject, pathToExcelSampleFolder, nameOfFileToSave);
+            var excelData = new ExcelData(excelFilePath);
+            excelData.CreateExcelWorkSheet();
+            FillExcelHeader(excelData);
+            TransferJobStatisticDataToExcel(jobStatisticData, excelData);
+            excelData.SaveExcelData();
         }
-        private static void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData)
+
+        private static void FillExcelHeader(ExcelData excelData)
         {
-            Microsoft.Office.Interop.Excel.Range workSpace;
-            Font textFont;
-            object[] headersCells =  { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
+            string[] headersCells =  { "ID", "JobWaitingInQueueDuration", "JobRetrievalDuration",
                 "FileDownloadDuration", "JobProcessingDuration", "ReportingByWorkerDuration", "JobRetrievalConfirmationDuration" };
-            workSpace = excelData.ExcelSheet.get_Range("A1", "G1");
-            workSpace.set_Value(excelData.ExcelDataObject, headersCells);
-            textFont = workSpace.Font;
-            textFont.Bold = true;
+
+            excelData.FillHeaders(headersCells, 1, 1);
+        }
+
+        private static void TransferJobStatisticDataToExcel(Dictionary<string, string> jobStatisticData, ExcelData excelData)
+        {
             var row = 2;
-            foreach (var data in jobStatisticData)
+            foreach (var (jobId, statisticsJson) in jobStatisticData)
             {
-                if (data.Value != "NULL")
+                if (statisticsJson != "NULL")
                 {
-                    var jobStatistics = JsonSerializer.Deserialize<JobStatisticsModel>(data.Value);
-                    excelData.ExcelSheet.Cells[row, 1] = data.Key;
-                    excelData.ExcelSheet.Cells[row, 2] = jobStatistics.JobWaitingInQueueDuration;
-                    excelData.ExcelSheet.Cells[row, 3] = jobStatistics.JobRetrievalDuration;
-                    excelData.ExcelSheet.Cells[row, 4] = jobStatistics.FileDownloadDuration;
-                    excelData.ExcelSheet.Cells[row, 5] = jobStatistics.JobProcessingDuration;
-                    excelData.ExcelSheet.Cells[row, 6] = jobStatistics.ReportingByWorkerDuration;
-                    excelData.ExcelSheet.Cells[row, 7] = jobStatistics.JobRetrievalConfirmationDuration;
+                    var jobStatistics = JsonSerializer.Deserialize<JobStatisticsModel>(statisticsJson);
+                    if (jobStatistics == null) continue;
+
+                    excelData.FillExcelCell(jobId, row, 1);
+                    excelData.FillExcelCell(jobStatistics.JobWaitingInQueueDuration, row, 2);
+                    excelData.FillExcelCell(jobStatistics.JobRetrievalDuration, row, 3);
+                    excelData.FillExcelCell(jobStatistics.FileDownloadDuration, row, 4);
+                    excelData.FillExcelCell(jobStatistics.JobProcessingDuration, row, 5);
+                    excelData.FillExcelCell(jobStatistics.ReportingByWorkerDuration, row, 6);
+                    excelData.FillExcelCell(jobStatistics.JobRetrievalConfirmationDuration, row, 7);
+                    row++;
                 }
-                row++;
             }
         }
+
     }
 }
 
